@@ -6,6 +6,7 @@
 - [How to use detect-secrets to detect specific Azure secrets in your source code](#how-to-use-detect-secrets-to-detect-specific-azure-secrets-in-your-source-code)
 - [How to detect-secrets in Azure DevOps pipelines](#how-to-detect-secrets-in-azure-devops-pipelines)
 - [How to detect-secrets in Github Action pipelines](#how-to-detect-secrets-in-github-action-pipelines)
+- [Detect-secrets Integration Test](detect-secrets-integration-test)
 - [Next steps](#next-steps)
 
 ## Introduction
@@ -274,6 +275,19 @@ Below the information to enter in the action secrets:
 Once the pipeline is created on your Github Account, you'll see the following result:
 
 ![](docs/img/README.md/github-actions.png)
+
+## Detect-secrets Integration Test
+In the repository, they are some files which can be used to check whether detect-secrets is fully functionning.
+Those files will run first detect-secrets on all the files which need to be scanned in the repository.
+Then it will run detect-secrets on all the files which need to be scanned in the repository and also on the files in the folder 'pipelines/detect-secrets/plugins/tests'.
+As currently the files in the folder 'pipelines/detect-secrets/plugins/tests' contains 7 secrets, the second secrets scan should detect 7 new   than during the first sercrets scan.
+
+| Files | Description |
+| ---------------------|:-------------|
+| pipelines/utils/test-detect-secrets.sh | Bash file which will scan first secrets in the repository and then in the files in the folder 'pipelines/detect-secrets/plugins/tests'. When calling this bash file the first argument is the expected number of secrets in the files in the folder 'pipelines/detect-secrets/plugins/tests'. If the number of new secrets after the second pass is equal to this value, the test will be sucessfull.     |
+| pipelines/azure-dev-ops/azure-pipelines.test-secrets.yml | Azure DevOps pipeline to test detect-secrets |
+| pipelines/github-action/github-action.test-secrets.yml | Github Action DevOps pipeline to test detect-secrets |
+
 
 
 ## Next steps

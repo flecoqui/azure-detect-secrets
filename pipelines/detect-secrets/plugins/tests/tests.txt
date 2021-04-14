@@ -1,0 +1,26 @@
+# Azure Databricks Token 1
+token='dapie2a364b335b951194b2a9494ceb69add'
+
+#SAS Token
+sas="sv=2019-10-10&ss=b&srt=sco&sp=rwdlacx&se=2030-05-08T04:39:33Z&st=2020-05-07T20:39:33Z&spr=https,http&sig=u%2Ffs0Y%2BZbRriL49RWfcyNwnT9C6dQxlZtMPw1pXNodY%3D"
+
+#Azure Storage Key
+key='9y4eAbrgpCRtP72wXamkJcUOV8ph1NEPlHtQcBZlDOYh1gNI/g6Vz4JP3xFHMAlKqn4/2JX3c9FLILo6u7k5YA=='
+
+#Instrumentation Key
+InstrumentatioKey=150c2c54-276f-4697-82cd-dc38cb1435f9;IngestionEndpoint=https://eastus-0.in.applicationinsights.azure.com/
+"key=150c2c54-276f-4697-82cd-dc38cb1435f8"
+150c2c54-276f-4697-82cd-dc38cb1435f3
+
+#Instrumentation Key connection string
+InstrumentatioKey=150c2c54-276f-4697-82cd-dc38cb1435f1;IngestionEndpoint=https://eastus-0.in.applicationinsights.azure.com/
+
+
+#Azure Storage Key 2
+key=9y4eAbrgpCRtP72wXamkJcUOV8ph1NEPlHtQcBZlDOYh1gNI/g6Vz4JP3xFHMAlKqn4/2JX3c9FLILo6u7k5YB==
+
+
+# Azure Databricks Token 2
+token=dapie2a364b335b951194b2a9494ceb69adf
+dapie2a364b335b951194b2a9494ceb69ade
+

@@ -1,0 +1,97 @@
+# Azure Pipeline that checks for secrets in code
+trigger:
+  branches:
+    include:
+    - "main"
+  paths:
+    exclude:
+    - .git/*
+    - .mypy_cache/*
+    - .pytest_cache/*
+    - __pycache__/*
+    - build/*
+    - dist/*
+
+variables:
+  - name: varPythonVersion
+    value:  '3.7'
+  - group: storage-variables
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+stages:
+- stage: ContinuousIntegration
+  displayName: Continuous Integration Stage
+  jobs:
+  - job: ContinuousIntegrationJob
+    displayName: Continuous Integration Job
+    steps:     
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(varPythonVersion)'
+      displayName: 'Use Python $(varPythonVersion)'    
+    - task: Bash@3
+      displayName: 'Detect-secrets'
+      env:          
+        inputPath: $(varInputPath)
+        excludeFiles: $(varExcludeFiles)
+        options: $(varOptions)
+        optionsv1: $(varOptionsv1)
+        excludedSecretsFile: $(varExcludedSecretsFile)       
+      inputs:
+        targetType: 'inline'
+        script: |
+            # run scan-secrets.sh
+            pipelines/utils/scan-secrets.sh
+
+    - task: Bash@3
+      displayName: 'Install dependencies'
+      inputs:
+        targetType: 'inline'
+        script: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest wheel
+          if [ -f .devcontainer/requirements_shared.txt ]; then pip install -r .devcontainer/requirements_shared.txt; fi
+          if [ -f .devcontainer/requirements_blobtext.txt ]; then pip install -r .devcontainer/requirements_blobtext.txt; fi
+
+
+    - task: Bash@3
+      displayName: 'Build wheel package'
+      inputs:
+        targetType: 'inline'
+        script: |
+            python setup.py bdist_wheel
+
+    - task: Bash@3
+      displayName: 'Install wheel package'
+      env:          
+        inputPath: $(varInputPath)
+        excludeFiles: $(varExcludeFiles)
+        options: $(varOptions)
+        optionsv1: $(varOptionsv1)
+        excludedSecretsFile: $(varExcludedSecretsFile)       
+      inputs:
+        targetType: 'inline'
+        script: |
+            python setup.py install
+
+    - task: Bash@3
+      displayName: 'Prepare pytest tests env file'
+      inputs:
+        targetType: 'inline'
+        script: |
+          cat > ./tests/blobtext/.env << EOF
+          STORAGE_ACCOUNT_NAME=$(STORAGE_ACCOUNT_NAME)
+          STORAGE_ACCOUNT_KEY=$(STORAGE_ACCOUNT_KEY)
+          STORAGE_CONTAINER_NAME=$(STORAGE_CONTAINER_NAME)
+          STORAGE_BLOB_NAME=$(STORAGE_BLOB_NAME)
+          STORAGE_ACCOUNT_SAS_TOKEN=$(STORAGE_ACCOUNT_SAS_TOKEN)            
+          EOF
+            
+    - task: Bash@3
+      displayName: 'Run tests'
+      inputs:
+        targetType: 'inline'
+        script: |
+            pytest ./tests --doctest-modules --junitxml=pytest-results.xml --cov=./src --cov-report=xml

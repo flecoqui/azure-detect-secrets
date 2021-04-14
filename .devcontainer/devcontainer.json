@@ -1,0 +1,30 @@
+{
+  "name": "Detect Secret Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "workspace-base",
+  "context": "..",
+  "workspaceFolder": "/workspace",
+  "settings": {
+    "python.linting.banditEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.mypyEnabled": true,
+    "python.linting.pydocstyleEnabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+      "tests"
+    ],
+    "terminal.integrated.inheritEnv": false,
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "[python]": {
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      }
+    }
+  },
+  "extensions": [
+    "ms-python.python"
+  ],
+  "postAttachCommand": "mkdir -p /home/$(id -un)/.ssh && touch /home/$(id -un)/.ssh/config && bash .devcontainer/install-detect-secrets-pre-commit.sh"
+}

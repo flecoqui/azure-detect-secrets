@@ -1,0 +1,75 @@
+name: ContinuousIntegration
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "CI" which detect secrets, build package and test package 
+  ci:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+    env:
+      pythonVersion: '3.7'
+      inputPath:  './'
+      excludeFiles:  '.*/tests/.*|.secrets.baseline|\.env|__pycache__|\.vscode|\.pytest_cache|\.mypy_cache|\.git|^build|^dist|\.ipynb_checkpoints'
+      options: ' --no-basic-auth-scan  --no-keyword-scan'
+      optionsv1: ' --disable-plugin KeywordDetector --disable-plugin BasicAuthDetector   --disable-filter  detect_secrets.filters.heuristic.is_prefixed_with_dollar_sign --disable-filter  detect_secrets.filters.heuristic.is_sequential_string  --disable-filter   detect_secrets.filters.heuristic.is_templated_secret '
+      excludedSecretsFile: '.secrets.baseline' 
+      STORAGE_ACCOUNT_NAME: ${{ secrets.STORAGE_ACCOUNT_NAME }}
+      STORAGE_ACCOUNT_KEY: ${{ secrets.STORAGE_ACCOUNT_KEY }}
+      STORAGE_CONTAINER_NAME: ${{ secrets.STORAGE_CONTAINER_NAME }}
+      STORAGE_BLOB_NAME: ${{ secrets.STORAGE_BLOB_NAME }}
+      STORAGE_ACCOUNT_SAS_TOKEN: ${{ secrets.STORAGE_ACCOUNT_SAS_TOKEN }}            
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Set up Python ${{ env.pythonVersion }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.pythonVersion }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest wheel
+          if [ -f .devcontainer/requirements_shared.txt ]; then pip install -r .devcontainer/requirements_shared.txt; fi
+          if [ -f .devcontainer/requirements_blobtext.txt ]; then pip install -r .devcontainer/requirements_blobtext.txt; fi
+
+      - name: Scan secret in main branch in current repository
+        run: |
+            # run scan-secrets.sh
+            pipelines/utils/scan-secrets.sh
+
+      - name: Build wheel package
+        run: |
+            python setup.py bdist_wheel
+
+      - name: Install wheel package
+        run: |
+            python setup.py install
+
+      - name: Prepare pytest tests env file 
+        run: |
+          cat > ./tests/blobtext/.env << EOF
+          STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT_NAME
+          STORAGE_ACCOUNT_KEY=$STORAGE_ACCOUNT_KEY
+          STORAGE_CONTAINER_NAME=$STORAGE_CONTAINER_NAME
+          STORAGE_BLOB_NAME=$STORAGE_BLOB_NAME
+          STORAGE_ACCOUNT_SAS_TOKEN=$STORAGE_ACCOUNT_SAS_TOKEN            
+          EOF
+            
+      - name: Run pytest tests 
+        run: |
+            pytest ./tests --doctest-modules --junitxml=pytest-results.xml --cov=./src --cov-report=xml

@@ -1,0 +1,7 @@
+repos:
+-   repo: https://github.com/Yelp/detect-secrets.git
+    rev: v1.0.3
+    hooks:
+    -   id: detect-secrets
+        args: ['--baseline', '.secrets.baseline', '--plugin', './pipelines/detect-secrets/plugins/azuresas.py','--plugin', './pipelines/detect-secrets/plugins/azuredatabrickstoken.py','--plugin', './pipelines/detect-secrets/plugins/azurestoragekey.py','--disable-plugin', 'KeywordDetector', '--disable-plugin', 'BasicAuthDetector','--disable-filter',  'detect_secrets.filters.heuristic.is_prefixed_with_dollar_sign', '--disable-filter',  'detect_secrets.filters.heuristic.is_sequential_string',  '--disable-filter',   'detect_secrets.filters.heuristic.is_templated_secret' ]
+        exclude: .*/tests/.*|.secrets.baseline|\.env|__pycache__|\.vscode|\.pytest_cache|\.mypy_cache|\.git|^build|^dist|\.ipynb_checkpoints

@@ -1,0 +1,13 @@
+version: '3'
+services:
+  workspace-base:
+    build:
+      context: .
+      dockerfile: Dockerfile-base
+    volumes:
+      - "..:/workspace"
+      - "~/.gitignore:/home/dsuser/.gitignore"
+      - "~/.ssh:/home/dsuser/.ssh"
+    ports:
+      - "127.0.0.1:8888:8888"
+    command: sleep infinity

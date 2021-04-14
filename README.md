@@ -6,7 +6,7 @@
 - [How to use detect-secrets to detect specific Azure secrets in your source code](#how-to-use-detect-secrets-to-detect-specific-azure-secrets-in-your-source-code)
 - [How to detect-secrets in Azure DevOps pipelines](#how-to-detect-secrets-in-azure-devops-pipelines)
 - [How to detect-secrets in Github Action pipelines](#how-to-detect-secrets-in-github-action-pipelines)
-- [Detect-secrets Integration Test](detect-secrets-integration-test)
+- [Detect-secrets Integration Test](#detect-secrets-integration-test)
 - [Next steps](#next-steps)
 
 ## Introduction
